@@ -3,38 +3,50 @@ import 'package:flutter/material.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: DefaultTabController(length: 3, child: Scaffold(
-        appBar: AppBar(
-          bottom: TabBar(tabs: [
-            Tab(icon: Icon(Icons.home), text: "Home",),
-            Tab(icon: Icon(Icons.map), text: "Map",),
-            Tab(icon: Icon(Icons.shopping_basket), text: "Merch",),
-          ]),
-          title: Text("Flutter course"),
-        ),
-        body: TabBarView(children: [
-          Text("Welcome home"),
-          Text("Where are you? I dont know...."),
-          Text("I like that shirt too"),
-        ]),
-        drawer: Drawer(
-          child: Column(
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.alarm),
-                title: Text("Alarm"),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              )
-            ],
+      home: CustomScrollView(
+        slivers: <Widget>[
+          const SliverAppBar(
+            pinned: true,
+            expandedHeight: 150.0,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text('Flutter Course'),
+            ),
           ),
-        ),
-      )),
+          SliverGrid(
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 200.0,
+              mainAxisSpacing: 10.0,
+              crossAxisSpacing: 10.0,
+              childAspectRatio: 4.0,
+            ),
+            delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                return Container(
+                  alignment: Alignment.center,
+                  color: Colors.teal[100 * (index % 9)],
+                  child: Text('grid item $index'),
+                );
+              },
+              childCount: 20,
+            ),
+          ),
+          SliverFixedExtentList(
+            itemExtent: 50.0,
+            delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                return Container(
+                  alignment: Alignment.center,
+                  color: Colors.lightBlue[100 * (index % 9)],
+                  child: Text('list item $index'),
+                );
+              },
+            ),
+          ),
+        ],
+      )
     );
   }
 }
