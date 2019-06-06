@@ -1,197 +1,80 @@
 import 'package:flutter/material.dart';
+import 'UserMap.dart';
 
-void main() => runApp(MyApp());
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class MyApp extends StatefulWidget {
+
+void main() => runApp(CoffeeApp());
+
+class CoffeeApp extends StatefulWidget {
   @override
-  _MyAppState createState() => new _MyAppState();
+  _CoffeeAppState createState() => new _CoffeeAppState();
 }
 
-enum WhyFarther { harder, smarter, selfStarter, tradingCenter }
+class _CoffeeAppState extends State<CoffeeApp> {
 
-class _MyAppState extends State<MyApp> {
-  String _dropdownString;
-  String _textFieldString;
-  bool _checkboxValue;
-  int _radioGroup;
-  WhyFarther _farther;
-  bool _switchValue;
-  double _sliderValue;
+  static GoogleMapController mapController;
 
-  @override
-  void initState() {
-    super.initState();
-    _dropdownString = _dropdownString ?? "Batman Begins";
-    _textFieldString = '';
-    _checkboxValue = true;
-    _radioGroup = 1;
-    _farther = WhyFarther.harder;
-    _switchValue = true;
-    _sliderValue = 0.33;
+  static final LatLng _center = const LatLng(45.521563, -122.677433);
+
+  static void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
+  int _selectedIndex = 0;
+  static const TextStyle optionStyle = TextStyle(
+      fontSize: 30, fontWeight: FontWeight.bold);
+  static List<Widget> _widgetOptions = <Widget>[
+    GoogleMap(
+      onMapCreated: _onMapCreated,
+      initialCameraPosition: CameraPosition(
+        target: _center,
+        zoom: 11.0,
+      ),
+    ),
+    Text(
+      'My Account',
+      style: optionStyle,
+    ),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: Scaffold(
-      appBar: AppBar(
-        title: Text("Flutter Course -- Buttons"),
+      theme: ThemeData(
+        primarySwatch: Colors.brown,
+        accentColor: Colors.amberAccent
       ),
-      body: Center(
-          child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          // Note that the DropdownButton does not hot reload very well
-          DropdownButton<String>(
-            value: _dropdownString,
-            onChanged: (String newValue) {
-              setState(() {
-                _dropdownString = newValue;
-              });
-            },
-            items: <String>[
-              'Batman Begins',
-              'The Dark Knight',
-              'The Dark Knight Rises'
-            ].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('Coffee App'),
           ),
-          TextField(
-            onChanged: (String value) {
-              setState(() {
-                _textFieldString = value;
-              });
-            },
+          body: Center(
+            child: _widgetOptions.elementAt(_selectedIndex),
           ),
-          Row(
-            children: <Widget>[
-              Checkbox(
-                value: _checkboxValue,
-                onChanged: (bool value) {
-                  setState(() {
-                    print(value);
-                    _checkboxValue = value;
-                  });
-                },
-                checkColor: Colors.red,
-                activeColor: Colors.amberAccent,
-              ),
-              Text("Notifications"),
-              Radio(
-                value: 1,
-                groupValue: _radioGroup,
-                onChanged: (T) {
-                  setState(() {
-                    _radioGroup = T;
-                  });
-                },
-              ),
-              Radio(
-                value: 2,
-                groupValue: _radioGroup,
-                onChanged: (T) {
-                  setState(() {
-                    _radioGroup = T;
-                  });
-                },
-              ),
-              Radio(
-                value: 3,
-                groupValue: _radioGroup,
-                onChanged: (T) {
-                  setState(() {
-                    _radioGroup = T;
-                  });
-                },
-              ),
-              PopupMenuButton<WhyFarther>(
-                onSelected: (WhyFarther result) {
-                  print(result);
-                  setState(() {
-                    _farther = result;
-                  });
-                },
-                itemBuilder: (BuildContext context) =>
-                    <PopupMenuEntry<WhyFarther>>[
-                      const PopupMenuItem(
-                          value: WhyFarther.harder,
-                          child: Text("Working a lot harder")),
-                      const PopupMenuItem(
-                          value: WhyFarther.selfStarter,
-                          child: Text("Being a lot smarter")),
-                      const PopupMenuItem(
-                          value: WhyFarther.smarter,
-                          child: Text("Being a self starter")),
-                      const PopupMenuItem(
-                          value: WhyFarther.tradingCenter,
-                          child:
-                              Text("Placed in charge of the trader charter")),
-                    ],
-              ),
-              IconButton(
+          bottomNavigationBar: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
                 icon: Icon(Icons.map),
-                tooltip: "Open the map",
-                onPressed: () {
-                  setState(() {
-                    print("Opening the map");
-                  });
-                },
-              )
-            ],
-          ),
-          ButtonBar(
-            alignment: MainAxisAlignment.center,
-            children: <Widget>[
-              FlatButton(
-                onPressed: () {
-                  print("Flat button pressed");
-                },
-                child: Text("Flat Button"),
-                color: Colors.red,
-                textColor: Colors.white,
-                highlightColor: Colors.grey,
+                title: Text('Map'),
               ),
-              RaisedButton(
-                child: Text("Raised Button"),
-                onPressed: () {
-                  print("Raised button pressed");
-                },
-                color: Colors.red,
-                textColor: Colors.white,
-                highlightColor: Colors.grey,
-                highlightElevation: 20,
+              BottomNavigationBarItem(
+                icon: Icon(Icons.account_circle),
+                title: Text('Account'),
               ),
-              FloatingActionButton(
-                onPressed: () {
-                  print("Floating button pressed");
-                },
-                child: Icon(Icons.add),
-              )
             ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: Colors.amber[800],
+            onTap: _onItemTapped,
           ),
-          Switch(
-            value: _switchValue,
-            onChanged: (bool state) {
-              setState(() {
-                _switchValue = state;
-              });
-            },
-          ),
-          Slider(
-            value: _sliderValue,
-            onChanged: (double value) {
-              setState(() {
-                _sliderValue = value;
-              });
-            },
-            activeColor: Colors.red,
-          ),
-        ],
-      )),
-    ));
+        ),
+      debugShowCheckedModeBanner: false,
+    );
   }
 }
